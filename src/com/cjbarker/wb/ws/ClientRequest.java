@@ -91,6 +91,14 @@ public class ClientRequest {
 		this.acceptTypes = acceptTypes;
 	}
 	
+	public ClientResponse sendRequest(Method method) throws IOException {
+		return sendRequest(method, null, null);
+	}
+	
+	public ClientResponse sendRequest(Method method, String resource) throws IOException {
+		return sendRequest(method, resource, null);
+	}
+	
 	/**
 	 * Performs HTTP request and returns the associated response.
 	 * 
