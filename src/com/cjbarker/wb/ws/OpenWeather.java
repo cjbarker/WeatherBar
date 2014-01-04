@@ -1,5 +1,6 @@
 package com.cjbarker.wb.ws;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
@@ -63,32 +64,32 @@ public class OpenWeather implements Weather {
 		
 		Location loc = new Location();
 		Map coord = (Map)jsonData.get("coord");
-		loc.latitude = (Double)coord.get("lat");
-		loc.longitude = (Double)coord.get("lon");
+		loc.latitude = Double.parseDouble( (String)coord.get("lat") );
+		loc.longitude = Double.parseDouble( (String)coord.get("lon") );
 	
 		Sun sun = new Sun();
 		Map sys = (Map)jsonData.get("sys");
-		long rise = (Integer)sys.get("sunrise");
-		long set = (Integer)sys.get("sunset");
-		sun.rise = new Date(rise).toString();
-		sun.set = new Date(set).toString();
-		
-		Map weather = (Map)jsonData.get("weather");
+		int rise = Integer.parseInt( (String)sys.get("sunrise") );
+		int set = Integer.parseInt( (String)sys.get("sunset") );
+		sun.rise = new Date((long)rise * 1000).toString();
+		sun.set = new Date((long)set * 1000).toString();
+				
+		Map weather = (Map)( (ArrayList)jsonData.get("weather") ).get(0);
 		fc.cloudDescp = (String)weather.get("description"); 
 		
 		Map main = (Map)jsonData.get("main");
 		Temperature temp = new Temperature();
-		temp.current = (Double)main.get("temp");
-		temp.low = (Double)main.get("temp_min");
-		temp.hi = (Double)main.get("temp_max");
+		temp.current = Double.parseDouble( (String)main.get("temp") );
+		temp.low = Double.parseDouble( (String)main.get("temp_min") );
+		temp.hi = Double.parseDouble( (String)main.get("temp_max") );
 		temp.unit = Unit.Farenheit;
-		fc.humidity = (Integer)main.get("humidity");
+		fc.humidity = Integer.parseInt( (String)main.get("humidity") );
 		
 		Map w = (Map)jsonData.get("wind");
 		Wind wind = new Wind();
-		wind.speed = (Double)w.get("speed");
-		wind.gust = (Double)w.get("gust");
-		wind.degree = (Integer)w.get("deg");
+		wind.speed = Double.parseDouble( (String)w.get("speed") );
+		wind.gust = Double.parseDouble( (String)w.get("gust") );
+		wind.degree = Integer.parseInt( (String)w.get("deg") );
 
 		fc.location = loc;
 		fc.sun = sun;
