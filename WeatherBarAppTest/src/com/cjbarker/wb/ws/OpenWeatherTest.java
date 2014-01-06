@@ -1,4 +1,4 @@
-package com.cjbarker.wb.test;
+package com.cjbarker.wb.ws;
 
 import java.lang.reflect.Method;
 
@@ -20,7 +20,7 @@ public class OpenWeatherTest extends TestCase {
     }
     
     public void testApiSet() {
-    	assertEquals(OpenWeather.API_URL, opWeather.getApiUrl());	
+    	assertEquals(OpenWeather.ATX_API_URL, opWeather.getApiUrl());	
     }
     
     public void testParse() {

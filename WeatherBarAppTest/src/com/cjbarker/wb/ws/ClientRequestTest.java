@@ -1,4 +1,4 @@
-package com.cjbarker.wb.test;
+package com.cjbarker.wb.ws;
 
 import java.io.IOException;
 

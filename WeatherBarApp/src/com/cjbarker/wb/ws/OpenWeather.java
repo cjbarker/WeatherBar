@@ -1,11 +1,15 @@
 package com.cjbarker.wb.ws;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.http.HttpStatus;
+
 import android.util.Log;
 
+import com.cjbarker.wb.Util;
 import com.cjbarker.wb.ws.Weather.Forecast;
 import com.cjbarker.wb.ws.Weather.Location;
 import com.json.parsers.JSONParser;
@@ -13,13 +17,14 @@ import com.json.parsers.JsonParserFactory;
 
 public class OpenWeather implements Weather {
 	
-	public static final String API_URL = "http://api.openweathermap.org/data/2.5/weather?q=Austin,Tx&units=imperial";
+	public static final String BASE_API_URL = "http://api.openweathermap.org/data/2.5/weather?";
+	public static final String ATX_API_URL = "http://api.openweathermap.org/data/2.5/weather?q=Austin,Tx&units=imperial";
 	private static final String TAG = "OpenWeather";
 	
 	private String apiUrl;
 	
 	public OpenWeather() {
-		this(API_URL);
+		this(ATX_API_URL);
 	}
 	
 	public OpenWeather(String apiUrl) {
@@ -30,7 +35,27 @@ public class OpenWeather implements Weather {
 		if (loc == null) {
 			return null;
 		}
-		String result = null;			// get from HTTP call
+		
+		final String url = buildQueryUrl(loc);
+		
+		ClientRequest request = new ClientRequest(url);
+		ClientResponse response = null;
+		String result = null;
+		
+    	try {
+    		response = request.sendRequest(ClientRequest.Method.GET);
+    		if (response != null && HttpStatus.SC_OK == response.getResponseCode()) {
+    			result = new String(response.getResponseMessage());
+    		}
+    		else {
+    			Log.w(TAG, "Failed to successfullyi get response from URL: " + url);
+    			if (response != null) Log.d(TAG, "Http Status Code: " + response.getResponseCode());
+    		}
+    	}
+    	catch (IOException ioe) {
+    		Log.e(TAG, "IOException on HTTP request: " + ioe.getMessage());
+    	}
+  	  		
 		Forecast fc = parse(result);
 		return fc;
 	}
@@ -48,11 +73,36 @@ public class OpenWeather implements Weather {
 	}
 	
 	public String getApiUrl() {
-		return API_URL;
+		return BASE_API_URL;
+	}
+	
+	private String buildQueryUrl(Location loc) {
+		if (loc == null) {
+			return null;
+		}
+		
+		if (this.apiUrl.contains("q=")) {
+			return this.apiUrl;
+		}
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append(this.apiUrl + "q=");
+		
+		if (!Util.isEmpty(loc.city) && !Util.isEmpty(loc.state)) {
+			sb.append(loc.city + "," + loc.state);
+		}
+		else {
+			sb.append(loc.latitude + "," + loc.longitude);
+		}
+		
+		// TODO read SharedPrefs and see what units set
+		sb.append("&units=imperial");
+		
+		return sb.toString();
 	}
 	
 	private Forecast parse(String json) {
-		if (json == null || json.trim().equals("")) {
+		if (Util.isEmpty(json)) {
 			return null;
 		}
 		
