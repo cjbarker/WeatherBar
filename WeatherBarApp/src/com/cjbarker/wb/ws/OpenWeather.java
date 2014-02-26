@@ -10,8 +10,6 @@ import org.apache.http.HttpStatus;
 import android.util.Log;
 
 import com.cjbarker.wb.Util;
-import com.cjbarker.wb.ws.Weather.Forecast;
-import com.cjbarker.wb.ws.Weather.Location;
 import com.json.parsers.JSONParser;
 import com.json.parsers.JsonParserFactory;
 
@@ -31,6 +29,7 @@ public class OpenWeather implements Weather {
 		this.apiUrl = apiUrl;
 	}
 	
+	// TODO provide getToday to include unit temperature setting
 	public Forecast getToday(Location loc) {
 		if (loc == null) {
 			return null;
@@ -56,7 +55,8 @@ public class OpenWeather implements Weather {
     		Log.e(TAG, "IOException on HTTP request: " + ioe.getMessage());
     	}
   	  		
-		Forecast fc = parse(result);
+    	Unit tempUnit = url.contains("units=imperial") ? Unit.Farenheit : Unit.Celcius;
+		Forecast fc = parse(result, tempUnit);
 		return fc;
 	}
 	
@@ -77,7 +77,7 @@ public class OpenWeather implements Weather {
 	}
 	
 	private String buildQueryUrl(Location loc) {
-		if (loc == null) {
+		if (loc == null || loc.isEmpty()) {
 			return null;
 		}
 		
@@ -101,7 +101,7 @@ public class OpenWeather implements Weather {
 		return sb.toString();
 	}
 	
-	private Forecast parse(String json) {
+	private Forecast parse(String json, Unit tempUnit) {
 		if (Util.isEmpty(json)) {
 			return null;
 		}
@@ -121,8 +121,8 @@ public class OpenWeather implements Weather {
 		Map sys = (Map)jsonData.get("sys");
 		int rise = Integer.parseInt( (String)sys.get("sunrise") );
 		int set = Integer.parseInt( (String)sys.get("sunset") );
-		sun.rise = new Date((long)rise * 1000).toString();
-		sun.set = new Date((long)set * 1000).toString();
+		sun.rise = Util.getLocalTime((long)rise * 1000);
+		sun.set = Util.getLocalTime((long)set * 1000);
 				
 		Map weather = (Map)( (ArrayList)jsonData.get("weather") ).get(0);
 		fc.cloudDescp = (String)weather.get("description"); 
@@ -132,7 +132,7 @@ public class OpenWeather implements Weather {
 		temp.current = Double.parseDouble( (String)main.get("temp") );
 		temp.low = Double.parseDouble( (String)main.get("temp_min") );
 		temp.hi = Double.parseDouble( (String)main.get("temp_max") );
-		temp.unit = Unit.Farenheit;
+		temp.unit = tempUnit;
 		fc.humidity = Integer.parseInt( (String)main.get("humidity") );
 		
 		Map w = (Map)jsonData.get("wind");

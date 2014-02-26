@@ -37,6 +37,10 @@ public interface Weather {
 			this.city = city;
 			this.state = state;
 		}
+		public boolean isEmpty() {
+			return ( (this.longitude == 0.0 && this.latitude == 0.0) 
+					&& (Util.isEmpty(this.city) || Util.isEmpty(this.state)) );
+		}
 		public String toString() {
 			if (Util.isEmpty(city) || Util.isEmpty(state)) {
 				return "Lat " + latitude + " Lon " + longitude;
@@ -78,10 +82,10 @@ public interface Weather {
 		public int humidity;
 		
 		public String toString() {
-			return location.toString() + sun.toString() + temperature.toString() + 
+			return location.toString() + "\n" + sun.toString() + "\n" + temperature.toString() + "\n" + 
 					wind.toString() + "\n" + cloudDescp + "\n" +
 					"Precp " + precipitation + "%\n" + 
-					" Humidity" + humidity + "%";
+					"Humidity " + humidity + "%";
 		}
 	}
 

@@ -28,6 +28,8 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
+import com.cjbarker.wb.Util;
+
 import android.util.Log;
 
 /**
@@ -121,7 +123,7 @@ public class ClientRequest {
 	    	resource = (resource.charAt(resource.length()-1) == '/') ? resource.substring(0, resource.length()-1) : resource;
 	    }
 
-	    final String url = this.baseUri + "/" + resource;
+	    final String url = (Util.isEmpty(resource)) ? this.baseUri : this.baseUri + "/" + resource;
 	        
 	    long beginMS = System.currentTimeMillis();
 	    Log.d(TAG, "HTTP ["+ method +"] to "+ url + " at time (ms): " + beginMS);
